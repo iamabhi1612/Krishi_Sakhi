@@ -16,6 +16,8 @@ interface Profile {
 interface ProfileContextType {
   profiles: Profile[];
   addProfile: (profile: Omit<Profile, 'id' | 'createdAt'>) => void;
+  updateProfile: (id: string, profile: Omit<Profile, 'id' | 'createdAt'>) => void;
+  deleteProfile: (id: string) => void;
   selectedProfile: Profile | null;
   setSelectedProfile: (profile: Profile | null) => void;
 }
@@ -36,8 +38,26 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setSelectedProfile(newProfile);
   };
 
+  const updateProfile = (id: string, profileData: Omit<Profile, 'id' | 'createdAt'>) => {
+    setProfiles(prev => prev.map(profile => 
+      profile.id === id 
+        ? { ...profile, ...profileData }
+        : profile
+    ));
+    if (selectedProfile?.id === id) {
+      setSelectedProfile({ ...selectedProfile, ...profileData });
+    }
+  };
+
+  const deleteProfile = (id: string) => {
+    setProfiles(prev => prev.filter(profile => profile.id !== id));
+    if (selectedProfile?.id === id) {
+      setSelectedProfile(null);
+    }
+  };
+
   return (
-    <ProfileContext.Provider value={{ profiles, addProfile, selectedProfile, setSelectedProfile }}>
+    <ProfileContext.Provider value={{ profiles, addProfile, updateProfile, deleteProfile, selectedProfile, setSelectedProfile }}>
       {children}
     </ProfileContext.Provider>
   );

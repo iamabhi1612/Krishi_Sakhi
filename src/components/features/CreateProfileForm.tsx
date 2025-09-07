@@ -11,21 +11,22 @@ import { useLanguage } from '../../contexts/LanguageContext';
 
 interface CreateProfileFormProps {
   onBack: () => void;
+  editProfile?: any;
 }
 
-const CreateProfileForm: React.FC<CreateProfileFormProps> = ({ onBack }) => {
-  const { addProfile } = useProfile();
+const CreateProfileForm: React.FC<CreateProfileFormProps> = ({ onBack, editProfile }) => {
+  const { addProfile, updateProfile } = useProfile();
   const { t } = useLanguage();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    name: '',
-    age: '',
-    contact: '',
-    location: '',
-    landSize: '',
-    cropType: '',
-    soilType: '',
-    irrigationMethod: '',
+    name: editProfile?.name || '',
+    age: editProfile?.age?.toString() || '',
+    contact: editProfile?.contact || '',
+    location: editProfile?.location || '',
+    landSize: editProfile?.landSize || '',
+    cropType: editProfile?.cropType || '',
+    soilType: editProfile?.soilType || '',
+    irrigationMethod: editProfile?.irrigationMethod || '',
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -33,10 +34,17 @@ const CreateProfileForm: React.FC<CreateProfileFormProps> = ({ onBack }) => {
   };
 
   const handleSubmit = () => {
-    addProfile({
-      ...formData,
-      age: parseInt(formData.age),
-    });
+    if (editProfile) {
+      updateProfile(editProfile.id, {
+        ...formData,
+        age: parseInt(formData.age),
+      });
+    } else {
+      addProfile({
+        ...formData,
+        age: parseInt(formData.age),
+      });
+    }
     onBack();
   };
 
@@ -58,6 +66,9 @@ const CreateProfileForm: React.FC<CreateProfileFormProps> = ({ onBack }) => {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h2 className="text-2xl font-bold text-gray-800">Create Farm Profile</h2>
+          <h2 className="text-2xl font-bold text-gray-800">
+            {editProfile ? 'Edit Farm Profile' : 'Create Farm Profile'}
+          </h2>
         </div>
 
         {/* Progress Indicator */}
@@ -227,7 +238,7 @@ const CreateProfileForm: React.FC<CreateProfileFormProps> = ({ onBack }) => {
                     disabled={!isStep2Valid}
                     className="flex-1 bg-green-500 hover:bg-green-600 py-3 rounded-xl"
                   >
-                    Create Profile
+                    {editProfile ? 'Update Profile' : 'Create Profile'}
                   </Button>
                 </div>
               </CardContent>
